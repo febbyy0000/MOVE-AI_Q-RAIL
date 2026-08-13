@@ -22,6 +22,13 @@ export type SectionCategory =
   | "OVERSEAS_DEST"
   | "OTHER";
 
+export type QuoteStatus =
+  | "CALCULATING"
+  | "ESTIMATED"
+  | "MOVING"
+  | "ARRIVED"
+  | "SETTLEMENT_COMPLETED";
+
 export type ContainerResponse = {
   id: number;
   container_type: string;
@@ -50,7 +57,7 @@ export type QuoteResponse = {
   departure: string;
   destination: string;
   dispatch_date: string;
-  status: string;
+  status: QuoteStatus;
   exchange_rate: string;
   ai_overseas_usd_min: string | null;
   ai_overseas_usd_max: string | null;
@@ -89,6 +96,38 @@ export async function getQuote(quoteNo: string): Promise<QuoteResponse> {
   if (!res.ok) {
     const message = await res.text();
     throw new Error(message || "견적을 불러오지 못했습니다.");
+  }
+
+  return res.json();
+}
+
+export async function updateQuoteStatus(
+  quoteNo: string,
+  status: QuoteStatus,
+): Promise<QuoteResponse> {
+  const res = await fetch(
+    `${API_BASE_URL}/quotes/${encodeURIComponent(quoteNo)}/status`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    },
+  );
+
+  if (!res.ok) {
+    const message = await res.text();
+    throw new Error(message || "상태 변경에 실패했습니다.");
+  }
+
+  return res.json();
+}
+
+export async function listQuotes(): Promise<QuoteResponse[]> {
+  const res = await fetch(`${API_BASE_URL}/quotes/`);
+
+  if (!res.ok) {
+    const message = await res.text();
+    throw new Error(message || "견적 목록을 불러오지 못했습니다.");
   }
 
   return res.json();
