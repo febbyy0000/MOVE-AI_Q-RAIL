@@ -33,7 +33,9 @@ _FALLBACK_ANCHORS: dict[str, dict] = {
     "tashkent": {"anchor_usd": Decimal("5123.00"), "volatility": Decimal("0.0150"), "confirmed": True},
 }
 
-_FX_BAND = Decimal("0.0150")  # 환율 밴드 ±1.5%
+from app.core.config import settings as _settings
+
+_FX_BAND = _settings.OVERSEAS_FX_BAND  # 환율 밴드 (config: OVERSEAS_FX_BAND)
 
 SUPPORTED_DESTINATIONS = set(_FALLBACK_ANCHORS.keys())
 
@@ -312,31 +314,27 @@ async def predict_overseas_quote(
 
 async def save_calc_log(db: AsyncSession, quote_id: str, destination: str, overseas: OverseasResult) -> None:
     """quote 저장 후 호출. overseas_calc_log에 계산 이력을 적재한다."""
-    try:
-        log = OverseasCalcLog(
-            quote_id=quote_id,
-            anchor_id=overseas._anchor_id,
-            destination=destination,
-            anchor_usd=overseas._anchor_usd,
-            volatility=overseas._volatility,
-            anchor_confirmed=overseas.anchor_confirmed,
-            quantity=overseas._quantity,
-            exchange_rate=overseas._exchange_rate,
-            fx_band=_FX_BAND,
-            usd_base=overseas.usd_base,
-            usd_min=overseas.usd_min,
-            usd_max=overseas.usd_max,
-            krw_min=overseas.krw_min,
-            krw_max=overseas.krw_max,
-            calc_steps=overseas.calc_steps,
-        )
-        db.add(log)
-        await db.commit()
-        await db.refresh(log)
-        logger.info(
-            "[overseas_calc] 계산 이력 적재 완료 | calc_log_id=%d quote_id=%s anchor_id=%s",
-            log.id, quote_id, overseas._anchor_id,
-        )
-    except Exception as exc:
-        logger.error("[overseas_calc] 계산 이력 적재 실패 | quote_id=%s error=%s", quote_id, exc)
-        raise
+    log = OverseasCalcLog(
+        quote_id=quote_id,
+        anchor_id=overseas._anchor_id,
+        destination=destination,
+        anchor_usd=overseas._anchor_usd,
+        volatility=overseas._volatility,
+        anchor_confirmed=overseas.anchor_confirmed,
+        quantity=overseas._quantity,
+        exchange_rate=overseas._exchange_rate,
+        fx_band=_FX_BAND,
+        usd_base=overseas.usd_base,
+        usd_min=overseas.usd_min,
+        usd_max=overseas.usd_max,
+        krw_min=overseas.krw_min,
+        krw_max=overseas.krw_max,
+        calc_steps=overseas.calc_steps,
+    )
+    db.add(log)
+    await db.commit()
+    await db.refresh(log)
+    logger.info(
+        "[overseas_calc] 계산 이력 적재 완료 | calc_log_id=%d quote_id=%s anchor_id=%s",
+        log.id, quote_id, overseas._anchor_id,
+    )
