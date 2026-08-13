@@ -11,7 +11,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # NEXT_PUBLIC_* 값은 빌드 시점에 번들에 박히므로 build-arg로 주입
-ARG NEXT_PUBLIC_API_URL
+# Cloud Run 콘솔의 "Dockerfile" 빌드 방식은 build-arg 입력창이 없어 기본값으로 고정
+ARG NEXT_PUBLIC_API_URL=https://move-ai-q-rail-git-51541759667.asia-northeast3.run.app/api/v1
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 RUN npm run build
