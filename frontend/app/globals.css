@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --maincolor: #313df6;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-maincolor: var(--maincolor);
+  --font-nanum: var(--font-nanum);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-nanum), Arial, Helvetica, sans-serif;
+}
+
+.bg-hero-gradient {
+  background:
+    radial-gradient(1100px 700px at 12% 10%, rgba(8, 10, 30, 0.95), transparent 60%),
+    radial-gradient(1300px 900px at 88% 95%, rgba(49, 61, 246, 0.85), transparent 55%),
+    linear-gradient(150deg, #05060f 0%, #0a0e2a 30%, #16209b 65%, #313df6 100%);
+}
+
+@keyframes float-train {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-18px) rotate(-1deg);
+  }
+}
+
+.animate-float-train {
+  animation: float-train 6s ease-in-out infinite;
+}
+
+@keyframes sparkle-dot {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(49, 61, 246, 0.25),
+      0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 3px 1.5px rgba(49, 61, 246, 0.25),
+      0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.animate-sparkle-dot {
+  animation: sparkle-dot 2.6s ease-in-out infinite;
+}
