@@ -1,0 +1,17 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: qrail_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: moveai2026
+      MYSQL_DATABASE: qrail
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  mysql_data:
