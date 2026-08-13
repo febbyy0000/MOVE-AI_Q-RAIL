@@ -1,6 +1,5 @@
-외부 접근 URL
-- 프론트엔드: http://211.217.173.151:3000
-- 백엔드 API: http://211.217.173.151:8000
+# 서비스 접근 URL
+https://move-ai-q-rail-git-front-51541759667.asia-northeast3.run.app/
 
 # 2026-MOVE-AI
 
