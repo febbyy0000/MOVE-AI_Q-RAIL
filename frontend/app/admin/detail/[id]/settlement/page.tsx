@@ -50,14 +50,14 @@ export default function AdminSettlementPage() {
 
       <div className="mt-4">
         <p className="text-sm font-bold text-maincolor">관리번호 {quote.quote_no}</p>
-        <h1 className="mt-1 text-2xl font-extrabold text-gray-900">정산서 업로드</h1>
+        <h1 className="mt-1 text-2xl font-extrabold text-gray-900">정산내역 반영</h1>
       </div>
 
       <SettlementForm
         quoteNo={quote.quote_no}
         quote={quote}
         onCancel={() => router.push(`/admin/detail/${quote.quote_no}`)}
-        onSaved={() => router.push(`/admin/detail/${quote.quote_no}`)}
+        onSaved={() => router.push(`/admin/settlements/${quote.quote_no}`)}
       />
     </div>
   );

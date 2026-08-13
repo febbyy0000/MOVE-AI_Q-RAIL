@@ -16,8 +16,13 @@ export type AdminQuoteListItem = {
   created_at: string;
 };
 
-export async function listAdminQuotes(): Promise<AdminQuoteListItem[]> {
-  const res = await fetch(`${API_BASE_URL}/admin/quotes`);
+export async function listAdminQuotes(
+  status?: QuoteStatus,
+): Promise<AdminQuoteListItem[]> {
+  const url = new URL(`${API_BASE_URL}/admin/quotes`);
+  if (status) url.searchParams.set("status", status);
+
+  const res = await fetch(url);
 
   if (!res.ok) {
     const message = await res.text();

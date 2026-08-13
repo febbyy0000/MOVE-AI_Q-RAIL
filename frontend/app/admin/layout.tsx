@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, ReceiptText } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/admin/records", label: "대시보드", icon: LayoutDashboard },
+  { href: "/admin/settlements", label: "최종 정산 목록", icon: ReceiptText },
 ];
 
 // TODO: 로그인 기능 붙으면 실제 로그인한 관리자 이름으로 교체

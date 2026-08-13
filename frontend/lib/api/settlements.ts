@@ -94,3 +94,18 @@ export async function createSettlement(
 
   return res.json();
 }
+
+export async function deleteSettlement(
+  quoteNo: string,
+  settlementId: number,
+): Promise<void> {
+  const res = await fetch(
+    `${API_BASE_URL}/quotes/${encodeURIComponent(quoteNo)}/settlements/${settlementId}`,
+    { method: "DELETE" },
+  );
+
+  if (!res.ok && res.status !== 404) {
+    const message = await res.text();
+    throw new Error(message || "정산 항목 삭제에 실패했습니다.");
+  }
+}

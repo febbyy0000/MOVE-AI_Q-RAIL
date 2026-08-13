@@ -5,15 +5,12 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { getQuote, type QuoteResponse } from "@/lib/api/quotes";
-import { listSettlements, type SettlementResponse } from "@/lib/api/settlements";
 import { QUOTE_STATUS_LABELS, QUOTE_STATUS_BADGE_STYLES } from "@/lib/constants/quoteStatus";
 import { QuoteDetailBody } from "@/components/quote/QuoteDetailBody";
-import { SettlementSummary } from "@/components/admin/SettlementSummary";
 
 export default function AdminDetailPage() {
   const params = useParams<{ id: string }>();
   const [quote, setQuote] = useState<QuoteResponse | null>(null);
-  const [settlements, setSettlements] = useState<SettlementResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,9 +20,6 @@ export default function AdminDetailPage() {
       .catch((err) =>
         setError(err instanceof Error ? err.message : "견적을 불러오지 못했습니다."),
       );
-    listSettlements(params.id)
-      .then(setSettlements)
-      .catch(() => setSettlements([]));
   }, [params.id]);
 
   if (error) {
@@ -68,25 +62,18 @@ export default function AdminDetailPage() {
           >
             [{QUOTE_STATUS_LABELS[quote.status]}]
           </span>
-          <Link
-            href={`/admin/detail/${quote.quote_no}/settlement`}
-            className="rounded-lg bg-maincolor px-5 py-2.5 text-sm font-extrabold text-white transition-transform hover:scale-105"
-          >
-            정산서 업로드
-          </Link>
+          {quote.status !== "SETTLEMENT_COMPLETED" && (
+            <Link
+              href={`/admin/detail/${quote.quote_no}/settlement`}
+              className="rounded-lg bg-maincolor px-5 py-2.5 text-sm font-extrabold text-white transition-transform hover:scale-105"
+            >
+              정산내역 반영
+            </Link>
+          )}
         </div>
       </div>
 
       <QuoteDetailBody quote={quote} />
-
-      {settlements.length > 0 && (
-        <>
-          <h2 className="mt-14 text-2xl font-extrabold text-gray-900">
-            실적 정산 내역
-          </h2>
-          <SettlementSummary settlements={settlements} />
-        </>
-      )}
     </div>
   );
 }

@@ -8,6 +8,8 @@ import {
 } from "@/lib/quoteBreakdown";
 import {
   createSettlement,
+  deleteSettlement,
+  listSettlements,
   uploadInvoice,
   type InvoiceParseResult,
 } from "@/lib/api/settlements";
@@ -45,15 +47,20 @@ export function SettlementForm({
 }) {
   const { domesticItems, overseasItems, otherItems } = computeQuoteBreakdown(quote);
   const [rows, setRows] = useState<Row[]>(() =>
-    [...domesticItems, ...overseasItems, ...otherItems].map((item) => ({
-      section_category: item.section_category,
-      item_name: item.item_name,
-      basis: item.basis,
-      note: item.note,
-      currency: item.currency,
-      actualAmount: "",
-      exchangeRate: String(quote.exchange_rate),
-    })),
+    [...domesticItems, ...overseasItems, ...otherItems].map((item) => {
+      const estimate = Math.round(
+        (Number(item.amount_min) + Number(item.amount_max)) / 2,
+      );
+      return {
+        section_category: item.section_category,
+        item_name: item.item_name,
+        basis: item.basis,
+        note: item.note,
+        currency: item.currency,
+        actualAmount: String(estimate),
+        exchangeRate: String(quote.exchange_rate),
+      };
+    }),
   );
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -104,6 +111,11 @@ export function SettlementForm({
     setIsSaving(true);
     setError(null);
     try {
+      const existing = await listSettlements(quoteNo);
+      for (const s of existing) {
+        await deleteSettlement(quoteNo, s.id);
+      }
+
       for (const row of rows) {
         if (row.actualAmount.trim() === "") continue;
         const krwAmount = computeKrw(row.currency, row.actualAmount, row.exchangeRate);
