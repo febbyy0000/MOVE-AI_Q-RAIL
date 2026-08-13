@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useDismissableDropdown } from "@/hooks/useDismissableDropdown";
 
 type AccountOption = {
@@ -17,6 +18,7 @@ const ACCOUNT_OPTIONS: AccountOption[] = [
 ];
 
 export function ShipperHeader() {
+  const router = useRouter();
   const { ref, isOpen, setIsOpen } = useDismissableDropdown<HTMLDivElement>();
   const [selected, setSelected] = useState<AccountOption>(ACCOUNT_OPTIONS[0]);
 
@@ -47,6 +49,7 @@ export function ShipperHeader() {
                     onClick={() => {
                       setSelected(option);
                       setIsOpen(false);
+                      if (isAdmin) router.push("/admin/records");
                     }}
                     className={`flex h-11 w-full items-center justify-between px-4 text-left text-sm font-medium transition-colors duration-150 ${
                       isAdmin ? "hover:bg-purple-600/10" : "hover:bg-maincolor/10"

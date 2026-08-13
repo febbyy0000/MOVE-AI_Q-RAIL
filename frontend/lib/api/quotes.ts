@@ -18,8 +18,8 @@ export type CreateQuotePayload = {
 
 export type SectionCategory =
   | "DOMESTIC"
-  | "OVERSEAS_2_1"
-  | "OVERSEAS_2_2"
+  | "OVERSEAS_HORGAS"
+  | "OVERSEAS_DEST"
   | "OTHER";
 
 export type ContainerResponse = {
@@ -52,6 +52,8 @@ export type QuoteResponse = {
   dispatch_date: string;
   status: string;
   exchange_rate: string;
+  ai_overseas_usd_min: string | null;
+  ai_overseas_usd_max: string | null;
   ai_total_krw_min: string | null;
   ai_total_krw_max: string | null;
   actual_total_krw: string | null;
