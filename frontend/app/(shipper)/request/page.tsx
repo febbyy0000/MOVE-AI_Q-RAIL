@@ -11,15 +11,13 @@ import { SectionNav } from "@/components/shipper/SectionNav";
 import type { Station } from "@/types/station";
 import { createEmptyContainerItemRow } from "@/components/shipper/ContainerItemRow";
 import { type CreateQuotePayload, PENDING_QUOTE_STORAGE_KEY } from "@/lib/api/quotes";
+import { getSelectedTestUser } from "@/lib/constants/testUsers";
 
 const SECTIONS = [
   { id: "route", label: "출발지 / 도착지" },
   { id: "date", label: "이용 예상 날짜" },
   { id: "containers", label: "컨테이너 규격 · 수량 및 품목" },
 ];
-
-// TODO: 로그인 기능 붙으면 실제 로그인한 유저 id로 교체
-const TEST_SHIPPER_ID = "9f03f7a7-af0f-4263-b523-1d40c2a5565b";
 
 function toISODate(date: Date) {
   const y = date.getFullYear();
@@ -54,7 +52,7 @@ export default function RequestPage() {
     if (!arrival || !date || filledRows.length === 0) return;
 
     const payload: CreateQuotePayload = {
-      shipper_id: TEST_SHIPPER_ID,
+      shipper_id: getSelectedTestUser().shipperId,
       destination: arrival.apiKey ?? arrival.name,
       dispatch_date: toISODate(date),
       containers: filledRows.map((row) => ({

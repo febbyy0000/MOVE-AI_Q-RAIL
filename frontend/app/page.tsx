@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { NavigationBar } from "@/components/layout/NavigationBar";
+import { UserSelector } from "@/components/shipper/UserSelector";
 
 export default function HomePage() {
   return (
@@ -16,9 +17,12 @@ export default function HomePage() {
           <br />
           단축하는 투명하고 신속한 시스템을 제공합니다
         </p>
+        <div className="mt-10">
+          <UserSelector />
+        </div>
         <Link
           href="/request"
-          className="mt-10 inline-flex h-[56px] items-center justify-center rounded-full bg-white px-8 text-[18px] font-extrabold text-[#0b1030] shadow-[0_10px_30px_rgba(0,0,0,0.25)] transition-transform hover:scale-105"
+          className="mt-4 inline-flex h-[56px] items-center justify-center rounded-full bg-white px-8 text-[18px] font-extrabold text-[#0b1030] shadow-[0_10px_30px_rgba(0,0,0,0.25)] transition-transform hover:scale-105"
         >
           지금 견적 요청하기
         </Link>
