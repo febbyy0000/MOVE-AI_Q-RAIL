@@ -23,12 +23,6 @@ export function NavigationBar() {
           ))}
         </nav>
       </div>
-      <Link
-        href="/request"
-        className="flex h-[50px] items-center justify-center rounded-full bg-white px-8 text-[18px] font-extrabold text-[#0b1030] shadow-[0px_4px_12px_0px_rgba(0,0,0,0.25)] transition-transform hover:scale-105"
-      >
-        견적 요청
-      </Link>
     </header>
   );
 }
