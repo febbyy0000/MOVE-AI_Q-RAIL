@@ -15,6 +15,9 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
+        # Cloud Run + Cloud SQL은 DB_HOST가 /cloudsql/프로젝트:리전:인스턴스 형태의 유닉스 소켓 경로로 옴
+        if self.DB_HOST.startswith("/cloudsql/"):
+            return f"mysql+aiomysql://{self.DB_USER}:{self.DB_PASSWORD}@/{self.DB_NAME}?unix_socket={self.DB_HOST}&charset=utf8mb4"
         return f"mysql+aiomysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}?charset=utf8mb4"
 
     GEMINI_API_KEY: str = ""
