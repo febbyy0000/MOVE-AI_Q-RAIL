@@ -1,4 +1,5 @@
 import type { AIDetailResponse, QuoteResponse } from "@/lib/api/quotes";
+import { destinationLabel } from "@/lib/constants/stations";
 
 // 백엔드 domestic_calc.py 와 동일한 공시 요율 (코레일 컨테이너 운임표 기준)
 const DOMESTIC_RATE_PER_KM: Record<string, number> = {
@@ -147,7 +148,7 @@ export function PrintableQuoteDocument({
 
       {/* 2. 해외운임 */}
       <SectionBar>
-        2. 해외운임 연운항 → {quote.destination} (국외철도)
+        2. 해외운임 연운항 → {destinationLabel(quote.destination)} (국외철도)
       </SectionBar>
       <table className="w-full border-collapse text-sm">
         <thead>

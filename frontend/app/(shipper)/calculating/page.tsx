@@ -10,6 +10,7 @@ import {
   PENDING_QUOTE_STORAGE_KEY,
   type CreateQuotePayload,
 } from "@/lib/api/quotes";
+import { destinationLabel } from "@/lib/constants/stations";
 
 const STEP_INTERVAL_MS = 2000;
 const REDIRECT_DELAY_MS = 2000;
@@ -176,7 +177,9 @@ export default function CalculatingPage() {
     );
   }
 
-  const labels = getStepLabels(payload?.destination ?? "도착지");
+  const labels = getStepLabels(
+    payload ? destinationLabel(payload.destination) : "도착지",
+  );
   const visibleLabels = labels.slice(0, revealedCount);
 
   return (

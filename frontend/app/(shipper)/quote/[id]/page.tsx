@@ -12,17 +12,18 @@ import {
   type QuoteResponse,
   type SectionCategory,
 } from "@/lib/api/quotes";
+import { destinationLabel } from "@/lib/constants/stations";
 
 const SECTION_ORDER: SectionCategory[] = [
   "DOMESTIC",
-  "OVERSEAS_2_1",
-  "OVERSEAS_2_2",
+  "OVERSEAS_HORGAS",
+  "OVERSEAS_DEST",
   "OTHER",
 ];
 
 const RAIL_GROUPS = [
   { key: "domestic", number: "1", label: "국내 구간", categories: ["DOMESTIC"] as SectionCategory[], icon: TrainFront },
-  { key: "overseas", number: "2", label: "해외 구간", categories: ["OVERSEAS_2_1", "OVERSEAS_2_2"] as SectionCategory[], icon: Globe },
+  { key: "overseas", number: "2", label: "해외 구간", categories: ["OVERSEAS_HORGAS", "OVERSEAS_DEST"] as SectionCategory[], icon: Globe },
   { key: "other", number: "3", label: "기타 부대비용", categories: ["OTHER"] as SectionCategory[], icon: FileText },
 ];
 
@@ -37,11 +38,11 @@ function formatAmount(min: string, max: string, currency: string) {
 // TODO: 백엔드에 해외 구간/기타 부대비용 산정 로직이 아직 없어서, 화면 구성 확인용으로
 // 화면기획서(U-03) 목업 수치를 임시로 채워둠. 실제 API가 해당 구간 데이터를 내려주기
 // 시작하면 이 함수는 자동으로 무시된다 (아래 병합 로직에서 실제 데이터 우선).
-function getMockDetails(destination: string): AIDetailResponse[] {
+function getMockDetails(destinationKr: string): AIDetailResponse[] {
   return [
     {
       id: -1,
-      section_category: "OVERSEAS_2_1",
+      section_category: "OVERSEAS_HORGAS",
       item_name: "대륙철도(TCR) 운임",
       basis: "연운항 ➔ 호르고스 구간 기준",
       note: "변동 가능",
@@ -53,7 +54,7 @@ function getMockDetails(destination: string): AIDetailResponse[] {
     },
     {
       id: -2,
-      section_category: "OVERSEAS_2_1",
+      section_category: "OVERSEAS_HORGAS",
       item_name: "연운항 터미널 하역·보관료",
       basis: "중국 항만 공시 요율",
       note: "변동 가능",
@@ -65,7 +66,7 @@ function getMockDetails(destination: string): AIDetailResponse[] {
     },
     {
       id: -3,
-      section_category: "OVERSEAS_2_2",
+      section_category: "OVERSEAS_DEST",
       item_name: "호르고스 국경 환적비",
       basis: "국경 환적 표준 요율",
       note: "기준 요율",
@@ -77,9 +78,9 @@ function getMockDetails(destination: string): AIDetailResponse[] {
     },
     {
       id: -4,
-      section_category: "OVERSEAS_2_2",
-      item_name: `호르고스 ➔ ${destination} (도착지 철도 운임)`,
-      basis: `호르고스 ➔ ${destination} 구간`,
+      section_category: "OVERSEAS_DEST",
+      item_name: `호르고스 ➔ ${destinationKr} (도착지 철도 운임)`,
+      basis: `호르고스 ➔ ${destinationKr} 구간`,
       note: "공시 요율",
       currency: "USD",
       amount_min: "3929",
@@ -152,7 +153,7 @@ export default function QuoteDetailPage() {
   );
   const mergedDetails = [
     ...quote.ai_details,
-    ...getMockDetails(quote.destination).filter(
+    ...getMockDetails(destinationLabel(quote.destination)).filter(
       (d) => !existingCategories.has(d.section_category),
     ),
   ];
@@ -253,7 +254,7 @@ export default function QuoteDetailPage() {
           <div className="rounded-2xl border border-gray-200 p-6 shadow-[0_4px_10px_rgba(0,0,0,0.05)]">
             <p className="text-sm text-gray-400">운송 구간</p>
             <p className="mt-6 text-center text-2xl font-extrabold text-gray-700">
-              {quote.departure} ➔ {quote.destination}
+              {quote.departure} ➔ {destinationLabel(quote.destination)}
             </p>
           </div>
           <div className="rounded-2xl border border-gray-200 p-6 shadow-[0_4px_10px_rgba(0,0,0,0.05)]">
@@ -280,7 +281,7 @@ export default function QuoteDetailPage() {
               </div>
               <div className="flex justify-between">
                 <dt className="text-gray-500">도착지</dt>
-                <dd className="font-semibold text-gray-900">{quote.destination}</dd>
+                <dd className="font-semibold text-gray-900">{destinationLabel(quote.destination)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-gray-500">운송 희망일</dt>

@@ -19,7 +19,7 @@ const SECTIONS = [
 ];
 
 // TODO: 로그인 기능 붙으면 실제 로그인한 유저 id로 교체
-const TEST_SHIPPER_ID = "2a0bbb20-5eff-4368-a44d-37497410ae07";
+const TEST_SHIPPER_ID = "4d6c21de-5855-4625-9a51-b10df3d07ae0";
 
 function toISODate(date: Date) {
   const y = date.getFullYear();
@@ -55,7 +55,7 @@ export default function RequestPage() {
 
     const payload: CreateQuotePayload = {
       shipper_id: TEST_SHIPPER_ID,
-      destination: arrival.name,
+      destination: arrival.apiKey ?? arrival.name,
       dispatch_date: toISODate(date),
       containers: filledRows.map((row) => ({
         container_type: row.containerType as string,
