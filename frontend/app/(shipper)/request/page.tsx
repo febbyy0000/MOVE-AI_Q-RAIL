@@ -19,7 +19,7 @@ const SECTIONS = [
 ];
 
 // TODO: 로그인 기능 붙으면 실제 로그인한 유저 id로 교체
-const TEST_SHIPPER_ID = "4d6c21de-5855-4625-9a51-b10df3d07ae0";
+const TEST_SHIPPER_ID = "9f03f7a7-af0f-4263-b523-1d40c2a5565b";
 
 function toISODate(date: Date) {
   const y = date.getFullYear();
