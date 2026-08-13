@@ -38,7 +38,6 @@ export function ShipperHeader() {
         {isOpen && (
           <ul className="absolute top-full right-0 z-20 mt-2 w-40 divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white shadow-lg">
             {ACCOUNT_OPTIONS.map((option) => {
-              const isSelected = option.label === selected.label;
               const isAdmin = option.role === "admin";
 
               return (
@@ -50,13 +49,7 @@ export function ShipperHeader() {
                       setIsOpen(false);
                     }}
                     className={`flex h-11 w-full items-center justify-between px-4 text-left text-sm font-medium transition-colors duration-150 ${
-                      isSelected
-                        ? isAdmin
-                          ? "bg-purple-600/10"
-                          : "bg-maincolor/10"
-                        : isAdmin
-                          ? "hover:bg-purple-600/10"
-                          : "hover:bg-maincolor/10"
+                      isAdmin ? "hover:bg-purple-600/10" : "hover:bg-maincolor/10"
                     }`}
                   >
                     <span className="text-gray-900">{option.label}</span>
