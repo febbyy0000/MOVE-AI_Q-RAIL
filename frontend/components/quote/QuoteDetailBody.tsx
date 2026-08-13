@@ -41,15 +41,15 @@ export function QuoteDetailBody({ quote }: { quote: QuoteDetailData }) {
             ₩
           </span>
         </div>
-        <div className="rounded-2xl border border-gray-200 p-6 shadow-[0_4px_10px_rgba(0,0,0,0.05)]">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 p-6 shadow-[0_4px_10px_rgba(0,0,0,0.05)]">
           <p className="text-sm text-gray-400">운송 구간</p>
-          <p className="mt-6 text-center text-2xl font-extrabold text-gray-700">
+          <p className="mt-3 text-center text-2xl font-extrabold text-gray-700">
             {quote.departure} ➔ {destinationLabel(quote.destination)}
           </p>
         </div>
-        <div className="rounded-2xl border border-gray-200 p-6 shadow-[0_4px_10px_rgba(0,0,0,0.05)]">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200 p-6 shadow-[0_4px_10px_rgba(0,0,0,0.05)]">
           <p className="text-sm text-gray-400">적용 환율</p>
-          <p className="mt-6 text-center text-2xl font-extrabold text-gray-700">
+          <p className="mt-3 text-center text-2xl font-extrabold text-gray-700">
             {Number(quote.exchange_rate).toLocaleString()}원/USD
           </p>
         </div>
@@ -153,21 +153,21 @@ export function QuoteDetailBody({ quote }: { quote: QuoteDetailData }) {
                 <table className="w-full text-lg">
                   <thead>
                     <tr className="border-b border-gray-100 text-left text-base text-gray-400">
-                      <th className="px-10 py-5 font-extrabold">세부 항목명</th>
-                      <th className="px-10 py-5 font-extrabold">산출 기준</th>
-                      <th className="px-10 py-5 font-extrabold">금액</th>
-                      <th className="px-10 py-5 font-extrabold">비고</th>
+                      <th className="px-10 py-5 font-extrabold whitespace-nowrap">세부 항목명</th>
+                      <th className="px-10 py-5 font-extrabold whitespace-nowrap">산출 기준</th>
+                      <th className="px-10 py-5 font-extrabold whitespace-nowrap">금액</th>
+                      <th className="px-10 py-5 font-extrabold whitespace-nowrap">비고</th>
                     </tr>
                   </thead>
                   <tbody>
                     {rail.items.map((item) => (
                       <tr key={item.id} className="border-b border-gray-50 last:border-0">
-                        <td className="px-10 py-5 text-gray-900">{item.item_name}</td>
-                        <td className="px-10 py-5 text-gray-500">{item.basis}</td>
-                        <td className="px-10 py-5 font-semibold text-gray-900">
+                        <td className="px-10 py-5 text-gray-900 whitespace-nowrap">{item.item_name}</td>
+                        <td className="px-10 py-5 text-gray-500 whitespace-nowrap">{item.basis}</td>
+                        <td className="px-10 py-5 font-semibold text-gray-900 whitespace-nowrap">
                           {formatAmount(item.amount_min, item.amount_max, item.currency)}
                         </td>
-                        <td className="px-10 py-5 text-gray-400">{item.note}</td>
+                        <td className="px-10 py-5 text-gray-400 whitespace-nowrap">{item.note}</td>
                       </tr>
                     ))}
                   </tbody>
