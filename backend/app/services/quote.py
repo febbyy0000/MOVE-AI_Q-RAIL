@@ -5,6 +5,8 @@ from datetime import datetime
 from decimal import Decimal
 from typing import AsyncGenerator
 
+_EXCHANGE_RATE = Decimal("1408.00")  # 서울외환시장 기준 고정값 (향후 외부 API 연동 예정)
+
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -34,7 +36,7 @@ class QuoteService:
             shipper_id=data.shipper_id,
             destination=data.destination,
             dispatch_date=data.dispatch_date,
-            exchange_rate=data.exchange_rate,
+            exchange_rate=_EXCHANGE_RATE,
         )
 
         containers_for_calc: list[tuple[str, int]] = []
@@ -74,7 +76,7 @@ class QuoteService:
             containers=containers_for_calc,
             item_name=item_name,
             destination=data.destination,
-            exchange_rate=data.exchange_rate,
+            exchange_rate=_EXCHANGE_RATE,
             quote_id=quote.id,
         )
         for item in overseas.items:
@@ -109,7 +111,7 @@ class QuoteService:
             "request": {
                 "destination": data.destination,
                 "dispatch_date": str(data.dispatch_date),
-                "exchange_rate": float(data.exchange_rate),
+                "exchange_rate": float(_EXCHANGE_RATE),
                 "containers": [
                     {"type": c.container_type, "qty": c.quantity, "item": c.item_name}
                     for c in data.containers
@@ -127,7 +129,7 @@ class QuoteService:
                 "formula": "CRIMT 앵커 단가 × 수량 × (1 ± 변동폭) × 환율 × (1 ± 환율밴드)",
                 "anchor_confirmed": overseas.anchor_confirmed,
                 "volatility_pct": float(overseas.error_rate * 100),
-                "exchange_rate": float(data.exchange_rate),
+                "exchange_rate": float(_EXCHANGE_RATE),
                 "usd_base": float(overseas.usd_base),
                 "usd_min": float(overseas.usd_min),
                 "usd_max": float(overseas.usd_max),
@@ -160,7 +162,7 @@ class QuoteService:
                 shipper_id=data.shipper_id,
                 destination=data.destination,
                 dispatch_date=data.dispatch_date,
-                exchange_rate=data.exchange_rate,
+                exchange_rate=_EXCHANGE_RATE,
             )
 
             containers_for_calc: list[tuple[str, int]] = []
@@ -201,7 +203,7 @@ class QuoteService:
                 containers=containers_for_calc,
                 item_name=item_name,
                 destination=data.destination,
-                exchange_rate=data.exchange_rate,
+                exchange_rate=_EXCHANGE_RATE,
                 quote_id=quote.id,
             )
             for item in overseas.items:
@@ -232,7 +234,7 @@ class QuoteService:
                 "request": {
                     "destination": data.destination,
                     "dispatch_date": str(data.dispatch_date),
-                    "exchange_rate": float(data.exchange_rate),
+                    "exchange_rate": float(_EXCHANGE_RATE),
                     "containers": [
                         {"type": c.container_type, "qty": c.quantity, "item": c.item_name}
                         for c in data.containers
@@ -250,7 +252,7 @@ class QuoteService:
                     "formula": "CRIMT 앵커 단가 × 수량 × (1 ± 변동폭) × 환율 × (1 ± 환율밴드)",
                     "anchor_confirmed": overseas.anchor_confirmed,
                     "volatility_pct": float(overseas.error_rate * 100),
-                    "exchange_rate": float(data.exchange_rate),
+                    "exchange_rate": float(_EXCHANGE_RATE),
                     "usd_base": float(overseas.usd_base),
                     "usd_min": float(overseas.usd_min),
                     "usd_max": float(overseas.usd_max),

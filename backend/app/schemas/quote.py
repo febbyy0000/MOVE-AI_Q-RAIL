@@ -41,7 +41,6 @@ class QuoteCreate(BaseModel):
     shipper_id: str
     destination: str
     dispatch_date: date
-    exchange_rate: Decimal = Decimal("1408.00")
     containers: list[ContainerCreate]
 
 

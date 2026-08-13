@@ -42,6 +42,7 @@ _DEST_KR = {
     "almaty":   "알마티",
     "tashkent": "타슈켄트",
 }
+_DEST_EN = {v: k for k, v in _DEST_KR.items()}  # 한글 → 영어 내부 키 역매핑
 
 _LLM_SYSTEM_PROMPT = (
     "You are a Korean international freight logistics expert specializing in HS Code classification "
@@ -227,6 +228,8 @@ async def predict_overseas_quote(
     - 계산 이력을 overseas_calc_log에 기록.
     - Gemini로 품목 HS Code 분류.
     """
+    destination = _DEST_EN.get(destination, destination)  # 한글 입력 허용 ("알마티" → "almaty")
+
     logger.info(
         "[overseas_calc] 해외 운임 계산 시작 | destination=%s containers=%s "
         "item_name=%s exchange_rate=%.2f quote_id=%s",
