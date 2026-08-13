@@ -8,6 +8,7 @@ from typing import AsyncGenerator
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.models.enums import QuoteStatus, SectionCategory
 from app.models.quote_ai_detail import QuoteAIDetail
 from app.models.quote_container import QuoteContainer
@@ -35,6 +36,7 @@ class QuoteService:
             destination=data.destination,
             dispatch_date=data.dispatch_date,
             exchange_rate=data.exchange_rate,
+            exchange_rate_date=data.exchange_rate_date,
         )
 
         containers_for_calc: list[tuple[str, int]] = []
@@ -92,6 +94,22 @@ class QuoteService:
                 )
             )
 
+        # 3. 기타 부대비용 — FIATA B/L (고정 금액)
+        fiata_fee = Decimal(settings.FIATA_BL_FEE)
+        quote.ai_details.append(
+            QuoteAIDetail(
+                section_category=SectionCategory.OTHER,
+                item_name="FIATA B/L 서류발행비",
+                basis="1건당 고정 요금",
+                note="서류 발급비",
+                currency="KRW",
+                amount_min=fiata_fee,
+                amount_max=fiata_fee,
+                krw_amount_min=fiata_fee,
+                krw_amount_max=fiata_fee,
+            )
+        )
+
         # LLM이 HS Code를 산출했고 컨테이너에 HS Code가 없는 경우 자동 반영
         if overseas.analysis.hs_code not in ("0000.00", ""):
             for container in quote.containers:
@@ -100,8 +118,8 @@ class QuoteService:
 
         quote.ai_overseas_usd_min = overseas.usd_min
         quote.ai_overseas_usd_max = overseas.usd_max
-        quote.ai_total_krw_min = domestic_total + overseas.krw_min
-        quote.ai_total_krw_max = domestic_total + overseas.krw_max
+        quote.ai_total_krw_min = domestic_total + overseas.krw_min + fiata_fee
+        quote.ai_total_krw_max = domestic_total + overseas.krw_max + fiata_fee
         quote.status = QuoteStatus.ESTIMATED
 
         # 계산 과정 로그 저장 (calc_log JSON)
@@ -161,6 +179,7 @@ class QuoteService:
                 destination=data.destination,
                 dispatch_date=data.dispatch_date,
                 exchange_rate=data.exchange_rate,
+                exchange_rate_date=data.exchange_rate_date,
             )
 
             containers_for_calc: list[tuple[str, int]] = []
@@ -218,6 +237,22 @@ class QuoteService:
                         krw_amount_max=item.krw_max,
                     )
                 )
+            # 3. 기타 부대비용 — FIATA B/L (고정 금액)
+            fiata_fee = Decimal(settings.FIATA_BL_FEE)
+            quote.ai_details.append(
+                QuoteAIDetail(
+                    section_category=SectionCategory.OTHER,
+                    item_name="FIATA B/L 서류발행비",
+                    basis="1건당 고정 요금",
+                    note="서류 발급비",
+                    currency="KRW",
+                    amount_min=fiata_fee,
+                    amount_max=fiata_fee,
+                    krw_amount_min=fiata_fee,
+                    krw_amount_max=fiata_fee,
+                )
+            )
+
             if overseas.analysis.hs_code not in ("0000.00", ""):
                 for container in quote.containers:
                     if not container.hs_code:
@@ -225,8 +260,8 @@ class QuoteService:
 
             quote.ai_overseas_usd_min = overseas.usd_min
             quote.ai_overseas_usd_max = overseas.usd_max
-            quote.ai_total_krw_min = domestic_total + overseas.krw_min
-            quote.ai_total_krw_max = domestic_total + overseas.krw_max
+            quote.ai_total_krw_min = domestic_total + overseas.krw_min + fiata_fee
+            quote.ai_total_krw_max = domestic_total + overseas.krw_max + fiata_fee
             quote.status = QuoteStatus.ESTIMATED
             quote.calc_log = {
                 "request": {
