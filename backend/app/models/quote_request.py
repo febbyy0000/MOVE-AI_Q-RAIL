@@ -7,6 +7,7 @@ from sqlalchemy import String, Date, DateTime, DECIMAL, ForeignKey, JSON
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.config import settings
 from app.core.database import Base
 from app.models.enums import QuoteStatus
 
@@ -47,8 +48,12 @@ class QuoteRequest(Base):
         comment="운행 상태 (CALCULATING→ESTIMATED→MOVING→ARRIVED→SETTLEMENT_COMPLETED)",
     )
     exchange_rate: Mapped[Decimal] = mapped_column(
-        DECIMAL(10, 2), default=Decimal("1408.00"),
+        DECIMAL(10, 2), default=lambda: settings.DEFAULT_EXCHANGE_RATE,
         comment="적용 환율 KRW/USD (서울외환시장 당일 종가 기준)",
+    )
+    exchange_rate_date: Mapped[Optional[date]] = mapped_column(
+        Date, nullable=True,
+        comment="환율 적용 기준일 (A-02 요약표 표시용)",
     )
     ai_overseas_usd_min: Mapped[Optional[Decimal]] = mapped_column(
         DECIMAL(12, 2), nullable=True,

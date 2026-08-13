@@ -5,11 +5,10 @@ from datetime import datetime
 from decimal import Decimal
 from typing import AsyncGenerator
 
-_EXCHANGE_RATE = Decimal("1408.00")  # 서울외환시장 기준 고정값 (향후 외부 API 연동 예정)
-
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.models.enums import QuoteStatus, SectionCategory
 from app.models.quote_ai_detail import QuoteAIDetail
 from app.models.quote_container import QuoteContainer
@@ -36,7 +35,8 @@ class QuoteService:
             shipper_id=data.shipper_id,
             destination=data.destination,
             dispatch_date=data.dispatch_date,
-            exchange_rate=_EXCHANGE_RATE,
+            exchange_rate=data.exchange_rate,
+            exchange_rate_date=data.exchange_rate_date,
         )
 
         containers_for_calc: list[tuple[str, int]] = []
@@ -76,7 +76,7 @@ class QuoteService:
             containers=containers_for_calc,
             item_name=item_name,
             destination=data.destination,
-            exchange_rate=_EXCHANGE_RATE,
+            exchange_rate=data.exchange_rate,
             quote_id=quote.id,
         )
         for item in overseas.items:
@@ -94,6 +94,22 @@ class QuoteService:
                 )
             )
 
+        # 3. 기타 부대비용 — FIATA B/L (고정 금액)
+        fiata_fee = Decimal(settings.FIATA_BL_FEE)
+        quote.ai_details.append(
+            QuoteAIDetail(
+                section_category=SectionCategory.OTHER,
+                item_name="FIATA B/L 서류발행비",
+                basis="1건당 고정 요금",
+                note="서류 발급비",
+                currency="KRW",
+                amount_min=fiata_fee,
+                amount_max=fiata_fee,
+                krw_amount_min=fiata_fee,
+                krw_amount_max=fiata_fee,
+            )
+        )
+
         # LLM이 HS Code를 산출했고 컨테이너에 HS Code가 없는 경우 자동 반영
         if overseas.analysis.hs_code not in ("0000.00", ""):
             for container in quote.containers:
@@ -102,8 +118,8 @@ class QuoteService:
 
         quote.ai_overseas_usd_min = overseas.usd_min
         quote.ai_overseas_usd_max = overseas.usd_max
-        quote.ai_total_krw_min = domestic_total + overseas.krw_min
-        quote.ai_total_krw_max = domestic_total + overseas.krw_max
+        quote.ai_total_krw_min = domestic_total + overseas.krw_min + fiata_fee
+        quote.ai_total_krw_max = domestic_total + overseas.krw_max + fiata_fee
         quote.status = QuoteStatus.ESTIMATED
 
         # 계산 과정 로그 저장 (calc_log JSON)
@@ -111,7 +127,7 @@ class QuoteService:
             "request": {
                 "destination": data.destination,
                 "dispatch_date": str(data.dispatch_date),
-                "exchange_rate": float(_EXCHANGE_RATE),
+                "exchange_rate": float(data.exchange_rate),
                 "containers": [
                     {"type": c.container_type, "qty": c.quantity, "item": c.item_name}
                     for c in data.containers
@@ -129,7 +145,7 @@ class QuoteService:
                 "formula": "CRIMT 앵커 단가 × 수량 × (1 ± 변동폭) × 환율 × (1 ± 환율밴드)",
                 "anchor_confirmed": overseas.anchor_confirmed,
                 "volatility_pct": float(overseas.error_rate * 100),
-                "exchange_rate": float(_EXCHANGE_RATE),
+                "exchange_rate": float(data.exchange_rate),
                 "usd_base": float(overseas.usd_base),
                 "usd_min": float(overseas.usd_min),
                 "usd_max": float(overseas.usd_max),
@@ -162,7 +178,8 @@ class QuoteService:
                 shipper_id=data.shipper_id,
                 destination=data.destination,
                 dispatch_date=data.dispatch_date,
-                exchange_rate=_EXCHANGE_RATE,
+                exchange_rate=data.exchange_rate,
+                exchange_rate_date=data.exchange_rate_date,
             )
 
             containers_for_calc: list[tuple[str, int]] = []
@@ -203,7 +220,7 @@ class QuoteService:
                 containers=containers_for_calc,
                 item_name=item_name,
                 destination=data.destination,
-                exchange_rate=_EXCHANGE_RATE,
+                exchange_rate=data.exchange_rate,
                 quote_id=quote.id,
             )
             for item in overseas.items:
@@ -220,6 +237,22 @@ class QuoteService:
                         krw_amount_max=item.krw_max,
                     )
                 )
+            # 3. 기타 부대비용 — FIATA B/L (고정 금액)
+            fiata_fee = Decimal(settings.FIATA_BL_FEE)
+            quote.ai_details.append(
+                QuoteAIDetail(
+                    section_category=SectionCategory.OTHER,
+                    item_name="FIATA B/L 서류발행비",
+                    basis="1건당 고정 요금",
+                    note="서류 발급비",
+                    currency="KRW",
+                    amount_min=fiata_fee,
+                    amount_max=fiata_fee,
+                    krw_amount_min=fiata_fee,
+                    krw_amount_max=fiata_fee,
+                )
+            )
+
             if overseas.analysis.hs_code not in ("0000.00", ""):
                 for container in quote.containers:
                     if not container.hs_code:
@@ -227,14 +260,14 @@ class QuoteService:
 
             quote.ai_overseas_usd_min = overseas.usd_min
             quote.ai_overseas_usd_max = overseas.usd_max
-            quote.ai_total_krw_min = domestic_total + overseas.krw_min
-            quote.ai_total_krw_max = domestic_total + overseas.krw_max
+            quote.ai_total_krw_min = domestic_total + overseas.krw_min + fiata_fee
+            quote.ai_total_krw_max = domestic_total + overseas.krw_max + fiata_fee
             quote.status = QuoteStatus.ESTIMATED
             quote.calc_log = {
                 "request": {
                     "destination": data.destination,
                     "dispatch_date": str(data.dispatch_date),
-                    "exchange_rate": float(_EXCHANGE_RATE),
+                    "exchange_rate": float(data.exchange_rate),
                     "containers": [
                         {"type": c.container_type, "qty": c.quantity, "item": c.item_name}
                         for c in data.containers
@@ -252,7 +285,7 @@ class QuoteService:
                     "formula": "CRIMT 앵커 단가 × 수량 × (1 ± 변동폭) × 환율 × (1 ± 환율밴드)",
                     "anchor_confirmed": overseas.anchor_confirmed,
                     "volatility_pct": float(overseas.error_rate * 100),
-                    "exchange_rate": float(_EXCHANGE_RATE),
+                    "exchange_rate": float(data.exchange_rate),
                     "usd_base": float(overseas.usd_base),
                     "usd_min": float(overseas.usd_min),
                     "usd_max": float(overseas.usd_max),

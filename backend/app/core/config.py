@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from pydantic_settings import BaseSettings
 
 
@@ -20,6 +22,22 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+
+    # ── 기본 환율 ─────────────────────────────────────────────────────────────
+    # 서울외환시장 당일 종가 기준, 견적 요청 시 프론트에서 덮어씀
+    DEFAULT_EXCHANGE_RATE: Decimal = Decimal("1408.00")
+
+    # ── 국내 구간 운임 ────────────────────────────────────────────────────────
+    DOMESTIC_DISTANCE_KM: int = 450          # 오봉역 → 부산항 고정 구간 거리
+    DOMESTIC_INFO_INPUT_FEE: int = 500       # 정보입력료 (전산 접수 1건당)
+    DOMESTIC_PASS_FEE: int = 1_500          # 출입증 발급수수료 (1장당)
+    DOMESTIC_VAT_RATE: Decimal = Decimal("0.10")   # 부가세율
+
+    # ── 기타 부대비용 ─────────────────────────────────────────────────────────
+    FIATA_BL_FEE: int = 44_000              # FIATA B/L 서류발행비 (1건당 고정)
+
+    # ── 해외 구간 환율 밴드 ───────────────────────────────────────────────────
+    OVERSEAS_FX_BAND: Decimal = Decimal("0.0150")  # 환율 변동 ±1.5%
 
     class Config:
         env_file = ".env"

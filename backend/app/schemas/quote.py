@@ -1,8 +1,16 @@
 from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from app.models.enums import QuoteStatus, SectionCategory
+from app.core.config import settings
+
+_DEST_NORMALIZE: dict[str, str] = {
+    "호르고스": "horgos",
+    "알마티":   "almaty",
+    "타슈켄트": "tashkent",
+}
+_VALID_DESTINATIONS = {"horgos", "almaty", "tashkent"}
 
 
 class ContainerCreate(BaseModel):
@@ -41,7 +49,20 @@ class QuoteCreate(BaseModel):
     shipper_id: str
     destination: str
     dispatch_date: date
+    exchange_rate: Decimal = settings.DEFAULT_EXCHANGE_RATE
+    exchange_rate_date: Optional[date] = None
     containers: list[ContainerCreate]
+
+    @field_validator("destination", mode="before")
+    @classmethod
+    def normalize_destination(cls, v: str) -> str:
+        normalized = _DEST_NORMALIZE.get(v, v.lower().strip())
+        if normalized not in _VALID_DESTINATIONS:
+            raise ValueError(
+                f"지원하지 않는 목적지: '{v}'. "
+                f"허용 값: {sorted(_VALID_DESTINATIONS)}"
+            )
+        return normalized
 
 
 class QuoteStatusUpdate(BaseModel):
@@ -57,6 +78,7 @@ class QuoteResponse(BaseModel):
     dispatch_date: date
     status: QuoteStatus
     exchange_rate: Decimal
+    exchange_rate_date: Optional[date]
     ai_overseas_usd_min: Optional[Decimal]
     ai_overseas_usd_max: Optional[Decimal]
     ai_total_krw_min: Optional[Decimal]
