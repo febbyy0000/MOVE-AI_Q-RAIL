@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     def DATABASE_URL(self) -> str:
         return f"mysql+aiomysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
-    GEMINI_API_KEY: str = ""  # 미설정 시 폴백(수식) 모드 동작
+    GEMINI_API_KEY: str = ""
 
     SECRET_KEY: str
     ALGORITHM: str = "HS256"

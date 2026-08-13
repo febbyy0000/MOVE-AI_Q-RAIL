@@ -67,7 +67,7 @@ class QuoteService:
                 )
             )
 
-        # 2. 해외 구간(TCR) 잠정 운임 예측 (SVR 회귀 + Gemini HS Code 분류)
+        # 2. 해외 구간(TCR) 잠정 운임 산정 (CRIMT 앵커 + Gemini HS Code 분류)
         item_name = data.containers[0].item_name if data.containers else "일반 화물"
         overseas = await predict_overseas_quote(
             db=self.repo.db,
@@ -123,17 +123,16 @@ class QuoteService:
                 "total_krw": int(domestic_total),
             },
             "overseas": {
-                "formula": "TCR $3,000/FEU × 가중치(20ft=0.6/40ft=1.0/45ft=1.15) × 수량 × (1 ± error_rate)",
-                "error_rate_formula": "max(5%, 20% / sqrt(n))",
-                "sample_n": overseas.sample_n,
-                "error_rate_pct": float(overseas.error_rate * 100),
-                "tcr_base_usd_per_feu": 3000,
+                "formula": "CRIMT 앵커 단가 × 수량 × (1 ± 변동폭) × 환율 × (1 ± 환율밴드)",
+                "anchor_confirmed": overseas.anchor_confirmed,
+                "volatility_pct": float(overseas.error_rate * 100),
                 "exchange_rate": float(data.exchange_rate),
                 "usd_base": float(overseas.usd_base),
                 "usd_min": float(overseas.usd_min),
                 "usd_max": float(overseas.usd_max),
                 "krw_min": int(overseas.krw_min),
                 "krw_max": int(overseas.krw_max),
+                "steps": overseas.calc_steps or [],
             },
             "gemini": {
                 "called": overseas.analysis.gemini_used,
@@ -192,7 +191,7 @@ class QuoteService:
                 )
             yield _sse({"step": "domestic"})
 
-            # 2. 해외 구간 (SVR + Gemini)
+            # 2. 해외 구간 (CRIMT 앵커 + Gemini)
             item_name = data.containers[0].item_name if data.containers else "일반 화물"
             overseas = await predict_overseas_quote(
                 db=self.repo.db,
@@ -244,16 +243,16 @@ class QuoteService:
                     "total_krw": int(domestic_total),
                 },
                 "overseas": {
-                    "formula": "TCR $3,000/FEU × 가중치(20ft=0.6/40ft=1.0/45ft=1.15) × 수량 × (1 ± error_rate)",
-                    "error_rate_formula": "max(5%, 20% / sqrt(n))",
-                    "sample_n": overseas.sample_n,
-                    "error_rate_pct": float(overseas.error_rate * 100),
+                    "formula": "CRIMT 앵커 단가 × 수량 × (1 ± 변동폭) × 환율 × (1 ± 환율밴드)",
+                    "anchor_confirmed": overseas.anchor_confirmed,
+                    "volatility_pct": float(overseas.error_rate * 100),
                     "exchange_rate": float(data.exchange_rate),
                     "usd_base": float(overseas.usd_base),
                     "usd_min": float(overseas.usd_min),
                     "usd_max": float(overseas.usd_max),
                     "krw_min": int(overseas.krw_min),
                     "krw_max": int(overseas.krw_max),
+                    "steps": overseas.calc_steps or [],
                 },
                 "gemini": {
                     "called": overseas.analysis.gemini_used,
