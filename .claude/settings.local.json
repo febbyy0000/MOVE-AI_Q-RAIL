@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /d)",
+      "Bash(dir \"D:\\\\Projects\\\\2026-MOVE-AI\\\\2026-MOVE-AI project\" /s /b)",
+      "Bash(git add *)",
+      "Bash(git restore *)",
+      "Bash(python *)",
+      "Bash(docker compose *)",
+      "Bash(.venv/Scripts/pip install *)",
+      "Bash(.venv/Scripts/uvicorn app.main:app --reload)",
+      "Bash(curl -s http://localhost:8000/health)"
+    ]
+  }
+}
