@@ -59,7 +59,7 @@ async def classify_item(text: str, today: Optional[str] = None) -> dict:
     client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
     response = await client.aio.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-flash-latest",
         contents=text,
         config=types.GenerateContentConfig(
             system_instruction=system,

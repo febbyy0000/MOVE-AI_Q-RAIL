@@ -157,7 +157,7 @@ async def _call_llm_analysis(item_name: str) -> OverseasAnalysis:
 
         client = genai.Client(api_key=api_key)
         resp = await client.aio.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-flash-latest",
             contents=f"품목명: {item_name}",
             config=types.GenerateContentConfig(
                 system_instruction=_LLM_SYSTEM_PROMPT,

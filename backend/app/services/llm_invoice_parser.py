@@ -136,10 +136,10 @@ async def parse_invoice_bytes(data: bytes, declared_type: Optional[str] = None) 
     client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
     response = await client.aio.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-flash-latest",
         contents=[
             types.Part.from_bytes(data=data, mime_type=mt),
-            types.Part.from_text("이 인보이스에서 운임 데이터를 추출해 JSON으로 출력하세요."),
+            types.Part.from_text(text="이 인보이스에서 운임 데이터를 추출해 JSON으로 출력하세요."),
         ],
         config=types.GenerateContentConfig(
             system_instruction=_INVOICE_SYSTEM,

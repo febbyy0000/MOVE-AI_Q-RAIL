@@ -1,7 +1,7 @@
 import json
 import uuid
 from asyncio import CancelledError
-from datetime import datetime
+from datetime import datetime, date
 from decimal import Decimal
 from typing import AsyncGenerator
 
@@ -35,8 +35,8 @@ class QuoteService:
             shipper_id=data.shipper_id,
             destination=data.destination,
             dispatch_date=data.dispatch_date,
-            exchange_rate=data.exchange_rate,
-            exchange_rate_date=data.exchange_rate_date,
+            exchange_rate=settings.DEFAULT_EXCHANGE_RATE,
+            exchange_rate_date=date.today(),
         )
 
         containers_for_calc: list[tuple[str, int]] = []
@@ -76,7 +76,7 @@ class QuoteService:
             containers=containers_for_calc,
             item_name=item_name,
             destination=data.destination,
-            exchange_rate=data.exchange_rate,
+            exchange_rate=settings.DEFAULT_EXCHANGE_RATE,
             quote_id=quote.id,
         )
         for item in overseas.items:
@@ -127,7 +127,7 @@ class QuoteService:
             "request": {
                 "destination": data.destination,
                 "dispatch_date": str(data.dispatch_date),
-                "exchange_rate": float(data.exchange_rate),
+                "exchange_rate": float(settings.DEFAULT_EXCHANGE_RATE),
                 "containers": [
                     {"type": c.container_type, "qty": c.quantity, "item": c.item_name}
                     for c in data.containers
@@ -145,7 +145,7 @@ class QuoteService:
                 "formula": "CRIMT 앵커 단가 × 수량 × (1 ± 변동폭) × 환율 × (1 ± 환율밴드)",
                 "anchor_confirmed": overseas.anchor_confirmed,
                 "volatility_pct": float(overseas.error_rate * 100),
-                "exchange_rate": float(data.exchange_rate),
+                "exchange_rate": float(settings.DEFAULT_EXCHANGE_RATE),
                 "usd_base": float(overseas.usd_base),
                 "usd_min": float(overseas.usd_min),
                 "usd_max": float(overseas.usd_max),
@@ -178,8 +178,8 @@ class QuoteService:
                 shipper_id=data.shipper_id,
                 destination=data.destination,
                 dispatch_date=data.dispatch_date,
-                exchange_rate=data.exchange_rate,
-                exchange_rate_date=data.exchange_rate_date,
+                exchange_rate=settings.DEFAULT_EXCHANGE_RATE,
+                exchange_rate_date=date.today(),
             )
 
             containers_for_calc: list[tuple[str, int]] = []
@@ -220,7 +220,7 @@ class QuoteService:
                 containers=containers_for_calc,
                 item_name=item_name,
                 destination=data.destination,
-                exchange_rate=data.exchange_rate,
+                exchange_rate=settings.DEFAULT_EXCHANGE_RATE,
                 quote_id=quote.id,
             )
             for item in overseas.items:
@@ -267,7 +267,7 @@ class QuoteService:
                 "request": {
                     "destination": data.destination,
                     "dispatch_date": str(data.dispatch_date),
-                    "exchange_rate": float(data.exchange_rate),
+                    "exchange_rate": float(settings.DEFAULT_EXCHANGE_RATE),
                     "containers": [
                         {"type": c.container_type, "qty": c.quantity, "item": c.item_name}
                         for c in data.containers
@@ -285,7 +285,7 @@ class QuoteService:
                     "formula": "CRIMT 앵커 단가 × 수량 × (1 ± 변동폭) × 환율 × (1 ± 환율밴드)",
                     "anchor_confirmed": overseas.anchor_confirmed,
                     "volatility_pct": float(overseas.error_rate * 100),
-                    "exchange_rate": float(data.exchange_rate),
+                    "exchange_rate": float(settings.DEFAULT_EXCHANGE_RATE),
                     "usd_base": float(overseas.usd_base),
                     "usd_min": float(overseas.usd_min),
                     "usd_max": float(overseas.usd_max),

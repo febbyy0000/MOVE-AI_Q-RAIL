@@ -39,7 +39,7 @@ class QuoteRepository:
     async def get_by_shipper(self, shipper_id: str) -> list[QuoteRequest]:
         result = await self.db.execute(
             select(QuoteRequest)
-            .options(selectinload(QuoteRequest.containers))
+            .options(*_FULL_LOAD)
             .where(QuoteRequest.shipper_id == shipper_id)
             .order_by(QuoteRequest.created_at.desc())
         )
@@ -48,7 +48,7 @@ class QuoteRepository:
     async def get_all(self) -> list[QuoteRequest]:
         result = await self.db.execute(
             select(QuoteRequest)
-            .options(selectinload(QuoteRequest.shipper), selectinload(QuoteRequest.containers))
+            .options(*_FULL_LOAD)
             .order_by(QuoteRequest.created_at.desc())
         )
         return list(result.scalars().all())
@@ -65,7 +65,7 @@ class QuoteRepository:
         stmt = (
             select(QuoteRequest)
             .join(QuoteRequest.shipper)
-            .options(selectinload(QuoteRequest.shipper), selectinload(QuoteRequest.containers))
+            .options(*_FULL_LOAD)
         )
 
         filters = []
