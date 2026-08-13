@@ -15,7 +15,7 @@ from app.models.quote_request import QuoteRequest
 from app.repositories.quote import QuoteRepository
 from app.schemas.quote import QuoteCreate, QuoteResponse, QuoteStatusUpdate
 from app.services.domestic_calc import calculate_domestic
-from app.services.overseas_calc import predict_overseas_quote
+from app.services.overseas_calc import predict_overseas_quote, save_calc_log
 
 
 class QuoteService:
@@ -75,6 +75,7 @@ class QuoteService:
             item_name=item_name,
             destination=data.destination,
             exchange_rate=data.exchange_rate,
+            quote_id=quote.id,
         )
         for item in overseas.items:
             quote.ai_details.append(
@@ -143,6 +144,8 @@ class QuoteService:
         }
 
         saved = await self.repo.create(quote)
+        # quote 저장 후 해외 운임 계산 이력 적재
+        await save_calc_log(self.repo.db, saved.id, data.destination, overseas)
         # 관계(containers, ai_details) 포함해서 다시 로드
         return await self.repo.get_by_id(saved.id)
 
@@ -199,6 +202,7 @@ class QuoteService:
                 item_name=item_name,
                 destination=data.destination,
                 exchange_rate=data.exchange_rate,
+                quote_id=quote.id,
             )
             for item in overseas.items:
                 quote.ai_details.append(
@@ -265,6 +269,7 @@ class QuoteService:
 
             # 3. 저장 후 완료
             saved = await self.repo.create(quote)
+            await save_calc_log(self.repo.db, saved.id, data.destination, overseas)
             result = await self.repo.get_by_id(saved.id)
             yield _sse({"step": "complete", "quote": QuoteResponse.model_validate(result).model_dump(mode="json")})
 
